@@ -1,25 +1,30 @@
 import itertools
 from collections.abc import Mapping, Sequence
-from typing import cast
-
-from utils import batched
 
 
 def decode(
-    text: str, size: int, bigram_coefs: Mapping[str, Mapping[str, int]]
+    text: str, key_size: int, bigram_coefs: Mapping[str, Mapping[str, int]]
 ) -> list[tuple[int, str]]:
+    len_text = len(text)
+
     def evaluate_key(key: Sequence[int]) -> tuple[int, str]:
-        t_parts = (
-            "".join(part[key[i]] for i in range(size)) for part in batched(text, size)
-        )
-        out = "".join(t_parts)
-        i = 0
+        def transpose_char(i: int) -> str:
+            j = i % key_size
+            return text[i - j + key[j]]
+
         score = 0
-        for i in range(len(out) - 2):
-            score += bigram_coefs[out[i]][out[i + 1]]
-        return score, out
+        chars = [""] * len_text
+
+        for i in range(len_text):
+            if i % 2 == 0:
+                chars[i] = transpose_char(i)
+                if i + 1 < len_text:
+                    chars[i + 1] = transpose_char(i + 1)
+                    score += bigram_coefs[chars[i]][chars[i + 1]]
+
+        return score, "".join(chars)
 
     return sorted(
-        (evaluate_key(key) for key in itertools.permutations(range(size))),
+        (evaluate_key(key) for key in itertools.permutations(range(key_size))),
         key=lambda t: -t[0],
     )
