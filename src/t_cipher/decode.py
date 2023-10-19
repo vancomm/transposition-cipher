@@ -1,10 +1,12 @@
+import logging
 import itertools
 from collections.abc import Mapping, Sequence
+from typing import Iterable
 
 
 def decode(
     text: str, key_size: int, bigram_coefs: Mapping[str, Mapping[str, int]]
-) -> list[tuple[int, str]]:
+) -> Iterable[tuple[int, str]]:
     len_text = len(text)
 
     if len_text % key_size != 0:
@@ -19,18 +21,27 @@ def decode(
             return text[k]
 
         score = 0
-        chars = [""] * len_text
+        chars: list[str] = [""] * len_text
 
         for i in range(len_text):
             if i % 2 == 0:
                 chars[i] = transpose_char(i)
                 if i + 1 < len_text:
                     chars[i + 1] = transpose_char(i + 1)
-                    score += bigram_coefs[chars[i]][chars[i + 1]]
+                    try:
+                        s = bigram_coefs[chars[i]][chars[i + 1]]
+                        score += s
+                    except Exception as e:
+                        logging.info(e, stack_info=True)
+                        print(repr(e))
+                        print(chars)
+                        print(chars[i], chars[i + 1])
+                        quit()
+
+            pass
 
         return score, "".join(chars)
 
-    return sorted(
-        (evaluate_key(key) for key in itertools.permutations(range(key_size))),
-        key=lambda t: -t[0],
-    )
+    entries = (evaluate_key(key) for key in itertools.permutations(range(key_size)))
+
+    return entries

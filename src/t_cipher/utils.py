@@ -1,7 +1,7 @@
 from math import ceil
 from collections import defaultdict
 from collections.abc import Generator, Sequence
-from typing import MutableMapping
+from typing import Callable, MutableMapping
 
 
 def batched(text: str, size: int) -> Generator[str, None, None]:
@@ -38,3 +38,20 @@ def ez_table(rows: Sequence[Sequence[str]]) -> str:
         "".join(cell.ljust(max_widths[i] + 1) for i, cell in enumerate(row))
         for row in rows
     )
+
+
+class defaultlist[T](list[T]):
+    def __init__(self, factory: Callable[[], T]) -> None:
+        self.factory = factory
+
+    def _grow(self, index: int) -> None:
+        while len(self) <= index:
+            self.append(self.factory())
+
+    def __getitem__(self, index: int) -> T:
+        self._grow(index)
+        return list.__getitem__(self, index)
+
+    def __setitem__(self, index: int, value: T) -> None:
+        self._grow(index)
+        return list.__setitem__(self, index, value)

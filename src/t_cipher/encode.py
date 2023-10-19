@@ -1,8 +1,8 @@
+from email import utils
 import random
 from collections.abc import Sequence
 
-from .const import cyrillic
-from .utils import batched, pad_right
+from . import const, utils
 
 
 def generate_key(size: int) -> Sequence[int]:
@@ -20,13 +20,24 @@ def validate_key(key_parts: Sequence[int]) -> Sequence[int]:
 
 
 def encode(
-    msg: str, key: Sequence[int], *, fill_chars: Sequence[str] = cyrillic
+    text: str, key: Sequence[int], *, fill_chars: Sequence[str] = const.cyrillic
 ) -> str:
-    msg = msg.upper()
-    size = len(key)
+    text = text.upper()
 
-    def transpose(val: str) -> str:
-        val = pad_right(val, size, fill_chars=fill_chars)
-        return "".join(val[i] for i in key)
+    if padding := (len(text) % len(key)):
+        text = utils.pad_right(
+            text, len(text) + len(key) - padding, fill_chars=fill_chars
+        )
 
-    return "".join(transpose(part) for part in batched(msg, size))
+    def transpose_char(i: int) -> str:
+        j = i % len(key)
+        k = i - j + key[j]
+        return text[k]
+
+    res: list[str] = utils.defaultlist(str)
+
+    for j in range(0, len(text), len(key)):
+        for i in range(j, len(text)):
+            res[i] = transpose_char(i)
+
+    return "".join(res)

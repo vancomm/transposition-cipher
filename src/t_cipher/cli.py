@@ -26,15 +26,18 @@ def cli():
     show_default=True,
     help="Generate a random key of supplied size.",
 )
+@click.option("--print-key/--no-print-key", default=True)
 @click.option("-v", "--verbose", is_flag=True)
-def encode(text: str, key_parts: Sequence[int], size: int, verbose: bool):
+def encode(
+    text: str, key_parts: Sequence[int], size: int, verbose: bool, print_key: bool
+):
     try:
         if key_parts:
             key = enc.validate_key(key_parts)
         else:
             key = enc.generate_key(size)
-
-            print("".join((str(i) for i in key)))
+            if print_key:
+                print("".join((str(i) for i in key)))
         encoded = enc.encode(text, key, fill_chars=const.cyrillic)
 
         if verbose:
@@ -86,6 +89,8 @@ def decode(message: str, key_size: int, bigrams: Path | None, limit: int | None)
     try:
         coefs = parse.read_bigram_coefs(bigrams, default=0)
         candidates = dec.decode(message, key_size, coefs)
+        candidates = sorted(candidates, key=lambda a: a[0], reverse=True)
+
         if limit is not None:
             candidates = candidates[:limit]
 
@@ -100,5 +105,6 @@ def decode(message: str, key_size: int, bigrams: Path | None, limit: int | None)
                 )
             )
         )
+
     except Exception as e:
-        print(f"Error: {e}")
+        raise click.ClickException(str(e))
