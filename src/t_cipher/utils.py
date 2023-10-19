@@ -1,5 +1,7 @@
 from math import ceil
+from collections import defaultdict
 from collections.abc import Generator, Sequence
+from typing import MutableMapping
 
 
 def batched(text: str, size: int) -> Generator[str, None, None]:
@@ -23,3 +25,16 @@ def pad_right(text: str, size: int, *, fill_chars: Sequence[str] = " ") -> str:
         text += "".join(fill_chars[:padding])
 
     return text
+
+
+def ez_table(rows: Sequence[Sequence[str]]) -> str:
+    max_widths: MutableMapping[int, int] = defaultdict(int)
+    for row in rows:
+        for i, cell in enumerate(row):
+            if (l := len(cell)) > max_widths[i]:
+                max_widths[i] = l
+
+    return "\n".join(
+        "".join(cell.ljust(max_widths[i] + 1) for i, cell in enumerate(row))
+        for row in rows
+    )

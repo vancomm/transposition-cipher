@@ -7,10 +7,16 @@ def decode(
 ) -> list[tuple[int, str]]:
     len_text = len(text)
 
+    if len_text % key_size != 0:
+        raise ValueError(
+            f"cannot decode text {text} of length {len_text} (must be a multiple of {key_size=})"
+        )
+
     def evaluate_key(key: Sequence[int]) -> tuple[int, str]:
         def transpose_char(i: int) -> str:
             j = i % key_size
-            return text[i - j + key[j]]
+            k = i - j + key[j]
+            return text[k]
 
         score = 0
         chars = [""] * len_text

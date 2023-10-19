@@ -1,5 +1,5 @@
 import pytest
-from utils import batched
+from t_cipher.utils import batched
 
 
 @pytest.mark.parametrize(

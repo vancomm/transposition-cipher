@@ -4,7 +4,7 @@ from collections.abc import Sequence
 
 import pytest
 
-from encode import encode
+from t_cipher.encode import encode
 
 
 @pytest.mark.parametrize(

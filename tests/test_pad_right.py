@@ -2,7 +2,7 @@ import pytest
 
 from collections.abc import Sequence
 
-from utils import pad_right
+from t_cipher.utils import pad_right
 
 
 @pytest.mark.parametrize(

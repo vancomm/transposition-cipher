@@ -3,7 +3,7 @@ from collections.abc import Mapping
 
 import pytest
 
-from read import read_bigram_coefs
+from t_cipher.parse import read_bigram_coefs
 
 
 @pytest.mark.parametrize(

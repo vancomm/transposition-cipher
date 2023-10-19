@@ -4,6 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+click = "*"
 
 [dev-packages]
 pytest = "*"
@@ -11,3 +12,8 @@ snakeviz = "*"
 
 [requires]
 python_version = "3.12"
+
+[scripts]
+t_cipher = "python3 -m src.t_cipher"
+test = "env PYTHONPATH=src pytest"
+prof = "python3 prof/prof.py"
