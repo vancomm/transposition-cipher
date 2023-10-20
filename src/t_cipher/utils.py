@@ -1,12 +1,42 @@
 from math import ceil
 from collections import defaultdict
-from collections.abc import Generator, Sequence
-from typing import Callable, MutableMapping
+from collections.abc import Sequence, Iterable
+from typing import Callable, overload
 
 
-def batched(text: str, size: int) -> Generator[str, None, None]:
-    for i in range(0, len(text), size):
-        yield text[i : i + size]
+class defaultlist[T](list[T]):
+    __default_factory: Callable[[], T]
+
+    @overload
+    def __init__(self, __default_factory: Callable[[], T]) -> None:
+        ...
+
+    @overload
+    def __init__(
+        self, __default_factory: Callable[[], T], __iterable: Iterable[T]
+    ) -> None:
+        ...
+
+    def __init__(
+        self, __default_factory: Callable[[], T], __iterable: Iterable[T] | None = None
+    ) -> None:
+        self.__default_factory = __default_factory
+        if __iterable:
+            list.__init__(self, __iterable)
+
+    def _grow(self, index: int) -> None:
+        while len(self) <= index:
+            self.append(self.__default_factory())
+
+    def __getitem__(self, index: int) -> T:
+        self._grow(index)
+        return list.__getitem__(self, index)
+
+    def __setitem__(self, index: int, value: T) -> None:
+        self._grow(index)
+        return list.__setitem__(self, index, value)
+
+
 
 
 def pad_right(text: str, size: int, *, fill_chars: Sequence[str] = " ") -> str:
@@ -28,7 +58,7 @@ def pad_right(text: str, size: int, *, fill_chars: Sequence[str] = " ") -> str:
 
 
 def ez_table(rows: Sequence[Sequence[str]]) -> str:
-    max_widths: MutableMapping[int, int] = defaultdict(int)
+    max_widths: dict[int, int] = defaultdict(int)
     for row in rows:
         for i, cell in enumerate(row):
             if (l := len(cell)) > max_widths[i]:
@@ -38,20 +68,3 @@ def ez_table(rows: Sequence[Sequence[str]]) -> str:
         "".join(cell.ljust(max_widths[i] + 1) for i, cell in enumerate(row))
         for row in rows
     )
-
-
-class defaultlist[T](list[T]):
-    def __init__(self, factory: Callable[[], T]) -> None:
-        self.factory = factory
-
-    def _grow(self, index: int) -> None:
-        while len(self) <= index:
-            self.append(self.factory())
-
-    def __getitem__(self, index: int) -> T:
-        self._grow(index)
-        return list.__getitem__(self, index)
-
-    def __setitem__(self, index: int, value: T) -> None:
-        self._grow(index)
-        return list.__setitem__(self, index, value)

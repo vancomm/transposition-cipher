@@ -1,4 +1,3 @@
-import logging
 import itertools
 from collections.abc import Mapping, Sequence
 from typing import Iterable
@@ -28,15 +27,8 @@ def decode(
                 chars[i] = transpose_char(i)
                 if i + 1 < len_text:
                     chars[i + 1] = transpose_char(i + 1)
-                    try:
-                        s = bigram_coefs[chars[i]][chars[i + 1]]
-                        score += s
-                    except Exception as e:
-                        logging.info(e, stack_info=True)
-                        print(repr(e))
-                        print(chars)
-                        print(chars[i], chars[i + 1])
-                        quit()
+                    s = bigram_coefs[chars[i]][chars[i + 1]]
+                    score += s
 
             pass
 

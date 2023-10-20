@@ -17,9 +17,3 @@ from t_cipher.encode import encode
 def test_encode(msg: str, key: Sequence[int], expected_pattern: str):
     actual = encode(msg, key, fill_chars=string.ascii_uppercase)
     assert re.fullmatch(expected_pattern, actual), f"{actual=}, {expected_pattern=}"
-
-
-# or it
-# 's ju
-# st fa
-# ntasy

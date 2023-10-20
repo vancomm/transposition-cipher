@@ -1,4 +1,3 @@
-import subprocess
 from pathlib import Path
 from collections.abc import Sequence
 
@@ -19,8 +18,8 @@ def cli():
 @click.argument("text", type=str)
 @click.argument("key_parts", type=int, nargs=-1)
 @click.option(
-    "-s",
-    "--size",
+    "-k",
+    "--key-size",
     type=int,
     default=4,
     show_default=True,
@@ -29,13 +28,13 @@ def cli():
 @click.option("--print-key/--no-print-key", default=True)
 @click.option("-v", "--verbose", is_flag=True)
 def encode(
-    text: str, key_parts: Sequence[int], size: int, verbose: bool, print_key: bool
+    text: str, key_parts: Sequence[int], key_size: int, verbose: bool, print_key: bool
 ):
     try:
         if key_parts:
             key = enc.validate_key(key_parts)
         else:
-            key = enc.generate_key(size)
+            key = enc.generate_key(key_size)
             if print_key:
                 print("".join((str(i) for i in key)))
         encoded = enc.encode(text, key, fill_chars=const.cyrillic)

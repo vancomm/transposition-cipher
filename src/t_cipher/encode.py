@@ -1,4 +1,3 @@
-from email import utils
 import random
 from collections.abc import Sequence
 
