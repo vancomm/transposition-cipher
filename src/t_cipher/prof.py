@@ -1,24 +1,21 @@
+#!/usr/bin/env python3
+
 import random
 import cProfile
 import pstats
 from pathlib import Path
-from pprint import pprint
 
-import sys
-
-sys.path.insert(0, "./src")  # import hack
-
-from t_cipher import encode as enc
-from t_cipher import decode as dec
-from t_cipher import parse
-from t_cipher import config, utils
+from . import encode as enc
+from . import decode as dec
+from . import parse
+from . import config, utils
 
 
 def run() -> None:
     bigram_coefs = parse.read_bigram_coefs(config.ru_bigrams_file, default=0)
     fill_chars = random.sample(list(bigram_coefs), k=len(bigram_coefs))
 
-    size = 9
+    size = 4
     message = "СВЯЩЕННАЯ РИМСКАЯ ИМПЕРИЯ"
 
     key = enc.generate_key(size)
@@ -35,10 +32,20 @@ def run() -> None:
     )
 
     candidates = dec.decode(encoded, size, bigram_coefs)
-    candidates = sorted(candidates)
+    candidates = sorted(candidates, reverse=True)
     candidates = candidates[:5]
 
-    pprint(candidates)
+    print(
+        utils.ez_table(
+            (
+                ("#", "Candidate", "Score"),
+                *(
+                    (str(i + 1), text, str(score))
+                    for i, (score, text) in enumerate(candidates)
+                ),
+            )
+        )
+    )
 
 
 def main() -> None:
@@ -51,6 +58,7 @@ def main() -> None:
     stats = pstats.Stats(pr)
     stats.sort_stats(pstats.SortKey.TIME)
     stats.dump_stats(prof_dir / "stats.prof")
+    print("== Profiling stats =====================================")
     stats.print_stats(3)
 
 
