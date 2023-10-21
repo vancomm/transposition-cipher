@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from collections.abc import Sequence
 
@@ -9,8 +10,11 @@ from . import decode as dec
 from . import config, const, utils
 
 
+logger = logging.getLogger(__name__)
+
+
 @click.group
-def cli():
+def cli() -> None:
     pass
 
 
@@ -25,16 +29,27 @@ def cli():
     show_default=True,
     help="Generate a random key of supplied size.",
 )
+@click.option(
+    "-s",
+    "--key-seed",
+    type=str,
+    help="Seed PRNG for key generation.",
+)
 @click.option("--print-key/--no-print-key", default=True)
 @click.option("-v", "--verbose", is_flag=True)
 def encode(
-    text: str, key_parts: Sequence[int], key_size: int, verbose: bool, print_key: bool
-):
+    text: str,
+    key_parts: Sequence[int],
+    key_size: int,
+    key_seed: str | None,
+    print_key: bool,
+    verbose: bool,
+) -> None:
     try:
         if key_parts:
             key = enc.validate_key(key_parts)
         else:
-            key = enc.generate_key(key_size)
+            key = enc.generate_key(key_size, seed=key_seed)
             if print_key:
                 print("".join((str(i) for i in key)))
         encoded = enc.encode(text, key, fill_chars=const.cyrillic)
@@ -70,6 +85,7 @@ def encode(
     type=int,
     help="Limit the number of results.",
 )
+@click.option("-p", "--parallel", is_flag=True)
 @click.option(
     "-b",
     "--bigrams",
@@ -81,13 +97,23 @@ def encode(
         path_type=Path,
     ),
 )
-def decode(message: str, key_size: int, bigrams: Path | None, limit: int | None):
+def decode(
+    message: str,
+    key_size: int,
+    bigrams: Path | None,
+    limit: int | None,
+    parallel: bool,
+) -> None:
     if not bigrams:
         bigrams = config.ru_bigrams_file
 
     try:
-        coefs = parse.read_bigram_coefs(bigrams, default=0)
-        candidates = dec.decode(message, key_size, coefs)
+        if parallel:
+            candidates = dec.decode_parallel(message, key_size, bigrams)
+        else:
+            coefs = parse.read_bigram_coefs(bigrams, default=0)
+            candidates = dec.decode(message, key_size, coefs)
+
         candidates = sorted(candidates, key=lambda a: a[0], reverse=True)
 
         if limit is not None:
@@ -106,4 +132,5 @@ def decode(message: str, key_size: int, bigrams: Path | None, limit: int | None)
         )
 
     except Exception as e:
+        logger.error(e, stack_info=True)
         raise click.ClickException(str(e))

@@ -1,42 +1,20 @@
 from math import ceil
 from collections import defaultdict
-from collections.abc import Sequence, Iterable
-from typing import Callable, overload
+from collections.abc import Generator, Sequence, Iterable
+from typing import SupportsIndex, Callable, TypeVar, Generic
+from typing import cast, overload
 
 
-class defaultlist[T](list[T]):
-    __default_factory: Callable[[], T]
-
-    @overload
-    def __init__(self, __default_factory: Callable[[], T]) -> None:
-        ...
-
-    @overload
-    def __init__(
-        self, __default_factory: Callable[[], T], __iterable: Iterable[T]
-    ) -> None:
-        ...
-
-    def __init__(
-        self, __default_factory: Callable[[], T], __iterable: Iterable[T] | None = None
-    ) -> None:
-        self.__default_factory = __default_factory
-        if __iterable:
-            list.__init__(self, __iterable)
-
-    def _grow(self, index: int) -> None:
-        while len(self) <= index:
-            self.append(self.__default_factory())
-
-    def __getitem__(self, index: int) -> T:
-        self._grow(index)
-        return list.__getitem__(self, index)
-
-    def __setitem__(self, index: int, value: T) -> None:
-        self._grow(index)
-        return list.__setitem__(self, index, value)
+T = TypeVar("T")
 
 
+def make_iter(items: T, size: int = -1) -> Generator[T, None, None]:
+    if size < 0:
+        while True:
+            yield items
+
+    for _ in range(size):
+        yield items
 
 
 def pad_right(text: str, size: int, *, fill_chars: Sequence[str] = " ") -> str:
