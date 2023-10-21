@@ -1,27 +1,22 @@
-[project]
+[tool.poetry]
 name = "t_cipher"
 version = "0.1.0"
-authors = [{ name = "Ivan Peshekhonov", email = "m1901199@edu.misis.ru" }]
 description = "Transposition cipher encoder/decoder"
+authors = ["Ivan Peshekhonov <m1901199@edu.misis.ru>"]
+license = "MIT"
 readme = "README.md"
-requires-python = ">=3.11"
-classifiers = [
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3 :: Only",
-]
-dependencies = ["click"]
 
-[project.urls]
-"Homepage" = "https://github.com/vancomm/transposition-cipher"
-"Bug Tracker" = "https://github.com/vancomm/transposition-cipher/issues"
+[tool.poetry.dependencies]
+python = "^3.11"
+click = "^8.1.7"
 
-[project.optional-dependencies]
-test = ["pytest"]
-dev = ["snakeviz"]
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.2"
+snakeviz = "^2.2.0"
 
-[project.scripts]
+[tool.poetry.scripts]
 t_cipher = "t_cipher:main"
 
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
