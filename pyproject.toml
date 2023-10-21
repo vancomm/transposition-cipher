@@ -1,0 +1,27 @@
+[project]
+name = "t_cipher"
+version = "0.1.0"
+authors = [{ name = "Ivan Peshekhonov", email = "m1901199@edu.misis.ru" }]
+description = "Transposition cipher encoder/decoder"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3 :: Only",
+]
+dependencies = ["click"]
+
+[project.urls]
+"Homepage" = "https://github.com/vancomm/transposition-cipher"
+"Bug Tracker" = "https://github.com/vancomm/transposition-cipher/issues"
+
+[project.optional-dependencies]
+test = ["pytest"]
+dev = ["snakeviz"]
+
+[project.scripts]
+t_cipher = "t_cipher:main"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"

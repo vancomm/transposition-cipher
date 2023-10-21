@@ -36,7 +36,7 @@ def run() -> None:
 
     candidates = dec.decode(encoded, size, bigram_coefs)
     candidates = sorted(candidates)
-    candidates = candidates[:10]
+    candidates = candidates[:5]
 
     pprint(candidates)
 
@@ -51,7 +51,7 @@ def main() -> None:
     stats = pstats.Stats(pr)
     stats.sort_stats(pstats.SortKey.TIME)
     stats.dump_stats(prof_dir / "stats.prof")
-    stats.print_stats()
+    stats.print_stats(3)
 
 
 if __name__ == "__main__":

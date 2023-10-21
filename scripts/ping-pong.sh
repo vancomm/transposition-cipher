@@ -1,14 +1,16 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-message="СВЕРХСЕКРЕТНОЕ СООБЩЕНИЕ"
-size=8
+message="СВЯЩЕННАЯ РИМСКАЯ ИМПЕРИЯ"
+size=10
 
 command time -f "Encoding time: %es" \
-    python3 -um src.t_cipher encode "$message" \
+    t_cipher encode "$message" \
         --key-size "$size" \
+        --key-seed 0 \
         --no-print-key |\
     tee /dev/tty |\
     xargs -I {} time -f "Decoding time: %es" \
-        python3 -m src.t_cipher decode "{}" \
-                --key-size "$size" \
-                --limit 10 
+        t_cipher decode "{}" \
+            --key-size "$size" \
+            --limit 5 \
+            --parallel
